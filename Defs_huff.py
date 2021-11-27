@@ -279,7 +279,7 @@ def desc(nome: str, form: str, i: int = 1):
     nome_arquivo = lista_nome2[-1]
 
     try:
-        with open(nome_arquivo, "x") as des:
+        with open(nome_arquivo, "x", encoding = "UTF-8") as des:
             return des.write(cp[nome].get("nome"))
 
     except FileExistsError:
