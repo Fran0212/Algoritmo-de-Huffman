@@ -1,9 +1,12 @@
 # arquivo que contém as funções de compactação
 from Defs_huff import *
+
 # biblioteca pela interface
 from tkinter import filedialog as dlg
+
 # biblioteca usada pra printar as mensagens coloridas
 from termcolor import cprint
+
 # importa o erro para o tratamento
 from configparser import NoSectionError
 
