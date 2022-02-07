@@ -1,5 +1,5 @@
 from numpy import void
-from back_huff import *
+from Back.back_huff import *
 
 def compactar():
     return void
