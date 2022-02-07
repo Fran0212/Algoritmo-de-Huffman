@@ -2,10 +2,10 @@
 from tkinter import *
 
 # faço a importação do codigo para executar os comandos na interface.
-from back_huff import *
+from Back.back_huff import *
 
 # importa as fun??es necess?rias para o front do projeto 
-from front_huff import *
+from Front.front_huff import *
 
 # Inicialização da tela principal.
 Tela_principal = Tk()
