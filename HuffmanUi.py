@@ -1,5 +1,5 @@
 # arquivo que contém as funções de compactação
-from Defs_huff import *
+from back_huff import *
 
 # biblioteca pela interface
 from tkinter import filedialog as dlg
