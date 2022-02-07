@@ -47,7 +47,7 @@ r para RECONSTRUIR ou q para SAIR:", end=" ")
         else:
             cprint("Arquivo compactado com sucesso!", "green")
 
-    if action == "x":
+    if action == "x" or action == "r":
 
         cp.read('save.ini', encoding="utf-8")
 
@@ -58,19 +58,9 @@ r para RECONSTRUIR ou q para SAIR:", end=" ")
 
         except NoSectionError:
             print("Ops, algo deu errado!", "red")
+
         else:
-            cprint("Arquivo descompactado com sucesso!", "green")
-
-    if action == "r":
-
-        cp.read('save.ini', encoding="utf-8")
-
-        try:
-            nome_section = arquivo_loc.lower()
-            formate = cp[nome_section].get("tipo_formato")
-            desc(nome_section, formate)
-
-        except NoSectionError:
-            print("Ops, algo deu errado!", "red")
-        else:
-            cprint("Arquivo reconstruido com sucesso!", "green")
+            if action == "x":
+                cprint("Arquivo descompactado com sucesso!", "green")
+            else:
+                cprint("Arquivo reconstruido com sucesso!", "green")
