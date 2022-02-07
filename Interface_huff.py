@@ -4,12 +4,9 @@ from tkinter import *
 # faço a importação do codigo para executar os comandos na interface.
 from back_huff import *
 
-<<<<<<< Updated upstream
-=======
 # importa as funções necessárias para o front do projeto 
 from front_huff import *
 
->>>>>>> Stashed changes
 # Inicialização da tela principal.
 Tela_principal = Tk()
 
