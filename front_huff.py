@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # Biblioteca necessária para a construção da interface.
 from tkinter import *
 
@@ -28,3 +29,17 @@ botão_reconstruir = Button(Tela_principal, text = "reconstruir", command=)
 
 # Comando necessário para manter a tela "rodando", e tbm responsavel pelo fechamento.
 Tela_principal.mainloop()
+=======
+from numpy import void
+from back_huff import *
+
+def compactar():
+    return void
+
+def descompactar():
+    return void
+
+def restaurar():
+    return void
+
+>>>>>>> Stashed changes

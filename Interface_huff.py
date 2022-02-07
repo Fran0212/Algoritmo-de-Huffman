@@ -4,6 +4,12 @@ from tkinter import *
 # faço a importação do codigo para executar os comandos na interface.
 from back_huff import *
 
+<<<<<<< Updated upstream
+=======
+# importa as funções necessárias para o front do projeto 
+from front_huff import *
+
+>>>>>>> Stashed changes
 # Inicialização da tela principal.
 Tela_principal = Tk()
 
@@ -20,9 +26,9 @@ img_principal = PhotoImage(file='imagem/ALGORITMO DE HUFFMAN(2).png')
 label_image = Label(Tela_principal, image=img_principal).pack()
 
 # botões responsaveis pela execução do código.
-botão_compactar = Button(Tela_principal, text = "compactar", command=)
-botão_descompactar = Button(Tela_principal, text = "descompactar", command=)
-botão_reconstruir = Button(Tela_principal, text = "reconstruir", command=)
+botão_compactar = Button(Tela_principal, text = "compactar")
+botão_descompactar = Button(Tela_principal, text = "descompactar")
+botão_reconstruir = Button(Tela_principal, text = "reconstruir")
 
 # Pedir o arquivo 
 
