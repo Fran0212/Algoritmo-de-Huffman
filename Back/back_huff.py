@@ -21,25 +21,29 @@ def frequencias(entrada: str) -> dict:
         entrada (str): um texto inteiro
 
     Returns:
-        letras_freqs (dict): um dicionário que contem cada item
+        palavras_freqs (dict): um dicionário que contem cada item
         e suas frequencias
     """
-    entrada = entrada
-    letras_freqs = {}
-    # key = list(dici.keys())
+    palavras_freqs = {}
 
     # esse for vai iterar a string de entrada
     for x in range(len(entrada)):
-        # freqs vai receber a incidencia de cada letra no texto
-        freqs = entrada.count(entrada[x])
+        if x == 0:
+            # freqs vai receber a incidencia de cada letra no texto
+            freqs = entrada.count(entrada[x])
+        else:
+            try:
+                palavras_freqs[entrada[x]]
+            except KeyError:
+                freqs = entrada.count(entrada[x])
+            else:
+                # o dicionário recebe a chave correspondente a cada letra da entrada
+                # e cada key recebe um valor referente à frequencia de cada letra
+                palavras_freqs[entrada[x]] = freqs
 
-        # o dicionário recebe a chave correspondente a cada letra da entrada
-        # e cada key recebe um valor referente à frequencia de cada letra
-        letras_freqs[entrada[x]] = freqs
+    # palavras_freqs[key[0]] = dici[key[0]]
 
-    # letras_freqs[key[0]] = dici[key[0]]
-
-    return letras_freqs
+    return palavras_freqs
 
 
 def ordem_freqs(dicio: dict) -> dict:
@@ -247,7 +251,7 @@ def compac(arq: str, arquivo_loc: str) -> Bits:
         arquivo_loc (str): reponsável por indicar o local do arquivo
 
     Returns:
-        arquivo (mbdk):  arquivo compactado
+        arquivo (huff):  arquivo compactado
     """
 
     freq = frequencias(arq)
