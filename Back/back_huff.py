@@ -16,7 +16,6 @@ import string
 # Bits será usado nas funções "codifica" e "atribui"
 # pois nós precisamos manipular bits ao invés de strings
 from bitstring import Bits
-from nbformat import read
 
 cp = configparser.ConfigParser()
 
@@ -212,13 +211,13 @@ def salva_desc(nome: str, arq: str, tipo_formato: str):
     """
 
     dados_arqs = cp
-    dados_arqs.read("save.ini", encoding="utf-8")
+    dados_arqs.read("save.ini", encoding="UTF-8")
 
     nome_banco_dados = nome.lower()
 
     dados_arqs[nome_banco_dados] = {"nome": arq, "tipo_formato": tipo_formato}
 
-    with open("save.ini", "a", encoding="utf-8") as save_comps:
+    with open("save.ini", "a", encoding="UTF-8") as save_comps:
         return dados_arqs.write(save_comps)
 
 
@@ -240,8 +239,6 @@ def compac(arq: str, arquivo_loc: str) -> Bits:
     codif = codifica(conc)
     cripto = atribui(codif, arq)
 
-    arquivo_loc = arquivo_comp(arquivo_loc, arquivo_loc)
-
     with open(arquivo_loc, "wb") as comp:
         return cripto.tofile(comp)
 
@@ -255,7 +252,7 @@ def desc(nome: str, form: str, i: int = 1):
         dici (str): armazenamento das chaves
         i (int, optional): contador de arquivos existentes. padrão para 0.
     """
-    cp.read('save.ini', encoding="utf-8")
+    cp.read('save.ini', encoding="UTF-8")
 
     # essa parte é um módulo a parte para o programa rodar no linux
     # pois no windows a função open cria um arquivo diretamente no diretório
@@ -289,10 +286,10 @@ def semi_compac(nome_arquivo: str):
 
     nome_arquivo = nome_arquivo.replace(tipo_formato, ".huff")
 
-    compac(conteudo_arq, nome_arquivo)
+    compac(conteudo_arq, nome_arquivo.casefold())
 
     # armazena os dados do arquivo original de acordo com a função salva_desc
-    semi_hd = salva_desc(nome_arquivo, conteudo_arq, tipo_formato)
+    semi_hd = salva_desc(nome_arquivo.casefold(), conteudo_arq, tipo_formato)
 
     return semi_hd
 
@@ -314,14 +311,3 @@ def erro_import(arq_nome: str, action: str):
     elif action == "x":
         if ".huff" not in arq_nome:
             raise ImportError
-
-def arquivo_comp(section, nome_arq:str, i = 1):
-    try:
-        cp.read("save.ini", "r", encoding="UTF-8")
-        cp[section]
-    except configparser.DuplicateSectionError:
-        return arquivo_comp(section, nome_arq, i+1)
-    except (FileNotFoundError ,KeyError):
-        return nome_arq
-    else:
-        return nome_arq + f" ({i})"
