@@ -1,48 +1,28 @@
-import configparser
+# Counter será usado na função "frequencia"
+from asyncio.windows_events import NULL
+from collections import Counter
+
 # config parser é uma biblioteca responsável por fazer arquivos de configuração
 # será usada para criar uma espécie de banco de
 # dados com os dados dos arquivos de entrada
+import configparser
 
-from copy import deepcopy
 # deep copy sera usado na função concat
 # para que eu altere um dicionário sem que as alterações sejam passadas adiante
+from copy import deepcopy
+from logging import exception
+import string
 
-from bitstring import Bits
 # Bits será usado nas funções "codifica" e "atribui"
 # pois nós precisamos manipular bits ao invés de strings
+from bitstring import Bits
+from nbformat import read
 
 cp = configparser.ConfigParser()
 
 
 def frequencias(entrada: str) -> dict:
-    """Obtem as frequencias de cada letra
-
-    Args:
-        entrada (str): um texto inteiro
-
-    Returns:
-        palavras_freqs (dict): um dicionário que contem cada item
-        e suas frequencias
-    """
-    palavras_freqs = {}
-
-    # esse for vai iterar a string de entrada
-    for x in range(len(entrada)):
-        if x == 0:
-            # freqs vai receber a incidencia de cada letra no texto
-            freqs = entrada.count(entrada[x])
-        else:
-            try:
-                palavras_freqs[entrada[x]]
-            except KeyError:
-                freqs = entrada.count(entrada[x])
-            else:
-                # o dicionário recebe a chave correspondente a cada letra da entrada
-                # e cada key recebe um valor referente à frequencia de cada letra
-                palavras_freqs[entrada[x]] = freqs
-
-    # palavras_freqs[key[0]] = dici[key[0]]
-
+    palavras_freqs = dict(Counter(entrada))
     return palavras_freqs
 
 
@@ -236,9 +216,9 @@ def salva_desc(nome: str, arq: str, tipo_formato: str):
 
     nome_banco_dados = nome.lower()
 
-    dados_arqs[nome_banco_dados] = {"nome": arq.lower(), "tipo_formato": tipo_formato}
+    dados_arqs[nome_banco_dados] = {"nome": arq, "tipo_formato": tipo_formato}
 
-    with open("save.ini", "x", encoding="utf-8") as save_comps:
+    with open("save.ini", "a", encoding="utf-8") as save_comps:
         return dados_arqs.write(save_comps)
 
 
@@ -259,6 +239,8 @@ def compac(arq: str, arquivo_loc: str) -> Bits:
     conc = concat(ord)
     codif = codifica(conc)
     cripto = atribui(codif, arq)
+
+    arquivo_loc = arquivo_comp(arquivo_loc, arquivo_loc)
 
     with open(arquivo_loc, "wb") as comp:
         return cripto.tofile(comp)
@@ -332,3 +314,14 @@ def erro_import(arq_nome: str, action: str):
     elif action == "x":
         if ".huff" not in arq_nome:
             raise ImportError
+
+def arquivo_comp(section, nome_arq:str, i = 1):
+    try:
+        cp.read("save.ini", "r", encoding="UTF-8")
+        cp[section]
+    except configparser.DuplicateSectionError:
+        return arquivo_comp(section, nome_arq, i+1)
+    except (FileNotFoundError ,KeyError):
+        return nome_arq
+    else:
+        return nome_arq + f" ({i})"
