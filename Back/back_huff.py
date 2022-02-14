@@ -1,5 +1,4 @@
 # Counter será usado na função "frequencia"
-from asyncio.windows_events import NULL
 from collections import Counter
 
 # config parser é uma biblioteca responsável por fazer arquivos de configuração
@@ -10,8 +9,6 @@ import configparser
 # deep copy sera usado na função concat
 # para que eu altere um dicionário sem que as alterações sejam passadas adiante
 from copy import deepcopy
-from logging import exception
-import string
 
 # Bits será usado nas funções "codifica" e "atribui"
 # pois nós precisamos manipular bits ao invés de strings
@@ -20,9 +17,17 @@ from bitstring import Bits
 cp = configparser.ConfigParser()
 
 
-def frequencias(entrada: str) -> dict:
-    palavras_freqs = dict(Counter(entrada))
-    return palavras_freqs
+def frequencias(conteudo: str) -> dict:
+    """Obtem as frequencias do texto do arquivo
+
+    Args:
+        conteudo (str): conteúdo do arquivo
+
+    Returns:
+        dict: dicionário comn as frequências de cada letra
+    """
+
+    return dict(Counter(conteudo))
 
 
 def ordem_freqs(dicio: dict) -> dict:
@@ -121,19 +126,19 @@ def codifica(dici: dict, dici_cods: dict = {}) -> dict:
     keys = list(dici.keys())
 
     # chama uma função responsável por obter as chaves que são apenas letras
-    keys_alone = obtem_keys_alone(keys)
+    keys_alone = obtem_keys_alone(dici)
 
     # atribui Bits de 0,1 do menor ao maior de acordo com os nós e folhas
     dici = atrubui_bits(dici, keys)
 
     # verifica se a letra está dentro do nó
     # e atribui à chave o código pertencente aos nós até chegar na folha
-    for k in range(len(keys_alone)):
+    for k in range(len(list(keys_alone.keys()))):
         cod = Bits(0)
         for l in range(len(keys)):
-            if keys_alone[k] in keys[l]:
+            if list(keys_alone.keys())[k] in keys[l]:
                 cod += dici[keys[l]]
-        dici_cods[keys_alone[k]] = cod
+        dici_cods[list(keys_alone.keys())[k]] = cod
 
     return dici_cods
 
@@ -160,20 +165,30 @@ def atrubui_bits(dici: dict, keys: list) -> dict:
     return dici
 
 
-def obtem_keys_alone(keys: list, keys_alone: list=[]) -> list:
-    """função responsável por retornas as chaves que são apenas letras
+def obtem_keys_alone(dici: dict) -> dict:
+    """Obtem as chaves que contém apenas uma letra
 
     Args:
-        keys (list): listas com todas as chaves do meu dicionário
-        keys_alone (list, opicional): recebe essas chaves só com uma letra.
-        Padrão to [].
+        dici (dict): dicionário contendo as frequencias de todos os nós e folhas da árvore
 
     Returns:
-        keys_alone (list): lista com as chaves unicas (keys_alone)
+        dict: dicionário que contém os nós com letras únicas
     """
-    for g in range(len(keys)):
-        if len(keys[g]) == 1:
-            keys_alone.append(keys[g])
+
+    # l é um lambda function que retona:
+    # # o item se o seu tamanho for de apenas uma letra
+    # # uma tupla contendo (None,None)
+    l = lambda x: x if len(x[0]) == 1 else (None,None)
+
+    # keys alone recebe o cast para dicionário do mapemento
+    # dos itens do dicionário inserido na função
+    # # eu fiz esse cast pois o hashmap só aceita uma chave por item
+    # # logo, isso faz com que tudo que não tenha uma uníca letra
+    # # seja facilmente retirado com a função del   
+    keys_alone = dict(map(l, dici.items()))
+
+    # remoção dos termos, de acordo com o pressuposto
+    del keys_alone[None]
 
     return keys_alone
 
