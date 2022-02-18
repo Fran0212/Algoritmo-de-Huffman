@@ -9,6 +9,7 @@ import configparser
 # deep copy sera usado na função concat
 # para que eu altere um dicionário sem que as alterações sejam passadas adiante
 from copy import deepcopy
+from operator import itemgetter
 
 # Bits será usado nas funções "codifica" e "atribui"
 # pois nós precisamos manipular bits ao invés de strings
@@ -44,23 +45,14 @@ def ordem_freqs(dicio: dict) -> dict:
     """
 
     # arr_ordem representa a lista de tuplas
-    arr_ordem = sorted(dicio.items(), key=lambda x: x[1])
+    arr_ordem = sorted(dicio.items(), key= itemgetter(1))
     # dicio_ordem é um dict vazio que vai receber os itens armazenados na tupla
-    dicio_ordem = {}
-
-    # esse laço vai iterar sobre os indicies de cada tupla.
-    for i in range(len(arr_ordem)):
-        # ja esse vai iterar sobre a tupla referente ao indice i(arr_ordem[i])
-        for j in arr_ordem[i]:
-            # aqui dicio_ordem recebe uma chave referente ao indice 0
-            # e essa por sua vez recebe um valor referente ao indice 1
-            dicio_ordem[arr_ordem[i][0]] = arr_ordem[i][1]
+    dicio_ordem = dict(arr_ordem)
 
     # nesse for foi usado o mesmo raciocinio de iteração de matrizes
     # , pois, em tese, essas são estruturas de dados
     # com estruturas de dado dentro, logo uma lista de tuplas é
     # , de certa forma, uma matriz
-
     return dicio_ordem
 
 
@@ -226,14 +218,17 @@ def salva_desc(nome: str, arq: str, tipo_formato: str):
     """
 
     dados_arqs = cp
-    dados_arqs.read("save.ini", encoding="UTF-8")
+    dados_arqs.read("save.ini", encoding= "UTF-8")
 
-    nome_banco_dados = nome.lower()
+    if existente(nome):
+        return
+    else:
+        nome = nome.lower()
 
-    dados_arqs[nome_banco_dados] = {"nome": arq, "tipo_formato": tipo_formato}
+        dados_arqs[nome] = {"nome": arq, "tipo_formato": tipo_formato}
 
-    with open("save.ini", "a", encoding="UTF-8") as save_comps:
-        return dados_arqs.write(save_comps)
+        with open("save.ini", "a", encoding="UTF-8") as save_comps:
+            return dados_arqs.write(save_comps)
 
 
 def compac(arq: str, arquivo_loc: str) -> Bits:
@@ -272,16 +267,17 @@ def desc(nome: str, form: str, i: int = 1):
     # essa parte é um módulo a parte para o programa rodar no linux
     # pois no windows a função open cria um arquivo diretamente no diretório
     # no qual eu coloquei o nome do arquivo
-    nome2 = nome.replace(".huff", "({}){}".format(i, form))
-    lista_nome2 = nome2.split("/")
+    nome.replace(".huff", form)
+    lista_nome2 = nome.split("/")
     nome_arquivo = lista_nome2[-1]
+    nome_arquivo += f"({i}){form}"
 
     try:
         with open(nome_arquivo, "x", encoding = "UTF-8") as des:
             return des.write(cp[nome].get("nome"))
 
     except FileExistsError:
-        return desc(nome2, form, i+1)
+        return desc(nome, form, i+1)
 
 
 def semi_compac(nome_arquivo: str):
@@ -301,10 +297,10 @@ def semi_compac(nome_arquivo: str):
 
     nome_arquivo = nome_arquivo.replace(tipo_formato, ".huff")
 
-    compac(conteudo_arq, nome_arquivo.casefold())
+    compac(conteudo_arq, nome_arquivo)
 
     # armazena os dados do arquivo original de acordo com a função salva_desc
-    semi_hd = salva_desc(nome_arquivo.casefold(), conteudo_arq, tipo_formato)
+    semi_hd = salva_desc(nome_arquivo.replace(".huff", ".txt"), conteudo_arq, tipo_formato)
 
     return semi_hd
 
@@ -326,3 +322,16 @@ def erro_import(arq_nome: str, action: str):
     elif action == "x":
         if ".huff" not in arq_nome:
             raise ImportError
+
+def existente(nome: str) -> bool:
+    """verifica a existência de um determinado arquivo no diretório
+        para isso, ele ve se o nome do meu arquivo -- diretório -- já se encontra
+        no arquivo .ini que a codificação está salva
+
+    Args:
+        nome (str): diretório do arquivo
+
+    Returns:
+        bool: verdadeiro ou falso
+    """
+    return nome in cp.sections()
