@@ -1,33 +1,41 @@
-# Biblioteca necessária para a construção da interface.
+
+# Biblioteca necessï¿½ria para a construÃ§Ã£o da interface.
 from tkinter import *
 
-# faço a importação do codigo para executar os comandos na interface.
+# faï¿½o a importaï¿½ï¿½o do codigo para executar os comandos na interface.
 from Back.back_huff import *
 
-# importa as funções necessárias para o front do projeto 
+# importa as funï¿½ï¿½es necessï¿½rias para o front do projeto
 from Front.front_huff import *
 
-# Inicialização da tela principal.
+# InicializaÃ§Ã£o da tela principal.
 Tela_principal = Tk()
 
-# Formatação do título que aparece no canto superior esquerdo da tela.
+# Formataï¿½ï¿½o do tï¿½tulo que aparece no canto superior esquerdo da tela.
 Tela_principal.title("Algoritmo de Huffman")
 
 # Tamanho da tela que se adequa a imagem.
 Tela_principal.geometry('600x338')
 
-# Variavel que armazenará a imagem projetada na tela inicial.
+# Variavel que armazenarÃ¡ a imagem projetada na tela inicial.
 img_principal = PhotoImage(file='imagem/ALGORITMO DE HUFFMAN(2).png')
 
-#
+# ColocaÃ§Ã£o da inagem da tela
 label_image = Label(Tela_principal, image=img_principal).pack()
 
-# botões responsaveis pela execução do código.
-botão_compactar = Button(Tela_principal, text = "compactar")
-botão_descompactar = Button(Tela_principal, text = "descompactar")
-botão_reconstruir = Button(Tela_principal, text = "reconstruir")
+# ImportaÃ§Ã£o da imagem
+img_compactar = PhotoImage(file='imagem/teste.gif')
 
-# Pedir o arquivo 
+# botï¿½es responsaveis pela execuï¿½ï¿½o do codigo.
+botÃ£o_compactar = Button(Tela_principal, text="reconstruir", command=reconstruir)
+botÃ£o_descompactar = Button(Tela_principal, text="descompactar", command=compactar)
+botÃ£o_reconstruir = Button(Tela_principal, text="reconstruir", command=descompactar)
 
-# Comando necessário para manter a tela "rodando", e tbm responsavel pelo fechamento.
+# Colocando a localizaÃ§Ã£o do botÃ£o na tela.
+botÃ£o_compactar.place(x=280, y=260)
+botÃ£o_descompactar.place(x=280, y=180)
+botÃ£o_reconstruir.place(x=280, y=220)
+
+
+# Comando necessï¿½rio para manter a tela "rodando", e tbm responsavel pelo fechamento.
 Tela_principal.mainloop()
