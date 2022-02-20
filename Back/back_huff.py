@@ -14,6 +14,7 @@ from operator import itemgetter
 # Bits será usado nas funções "codifica" e "atribui"
 # pois nós precisamos manipular bits ao invés de strings
 from bitstring import Bits
+from matplotlib.font_manager import json_load
 
 cp = configparser.ConfigParser()
 
@@ -25,7 +26,7 @@ def frequencias(conteudo: str) -> dict:
         conteudo (str): conteúdo do arquivo
 
     Returns:
-        dict: dicionário comn as frequências de cada letra
+        dict: dicionário com as frequências de cada letra
     """
 
     return dict(Counter(conteudo))
@@ -123,16 +124,23 @@ def codifica(dici: dict, dici_cods: dict = {}) -> dict:
     # atribui Bits de 0,1 do menor ao maior de acordo com os nós e folhas
     dici = atrubui_bits(dici, keys)
 
-    # verifica se a letra está dentro do nó
+    # atribuição de uma lista com as chaves do dicionário
+    list_keys_alone = list(keys_alone.keys())
+
+
     # e atribui à chave o código pertencente aos nós até chegar na folha
-    for k in range(len(list(keys_alone.keys()))):
+    for k in range(len(list_keys_alone)):
+        # reseta o codigo
         cod = Bits(0)
         for l in range(len(keys)):
-            if list(keys_alone.keys())[k] in keys[l]:
+            # verifica se a letra está dentro do nó
+            if list_keys_alone[k] in keys[l]:
+                # concatena um bit ao código
                 cod += dici[keys[l]]
-        dici_cods[list(keys_alone.keys())[k]] = cod
+        # cada letra recebe seu código
+        keys_alone[list_keys_alone[k]] = cod
 
-    return dici_cods
+    return keys_alone
 
 
 def atrubui_bits(dici: dict, keys: list) -> dict:
@@ -145,6 +153,7 @@ def atrubui_bits(dici: dict, keys: list) -> dict:
     Returns:
         dict: dicionário com 0 e 1, ou seja, a árvore montada
     """
+
 
     for i in range(len(keys)):
         if i == len(keys) - 1:
@@ -197,12 +206,14 @@ def atribui(dici: dict, arquivo: str) -> Bits:
     Returns:
         cont_arquivo_comp (bits): a bitstring do arquivo original
     """
-    chaves = list(dici.keys())
+
+    # inicialização de uma variável com o tipo bits
     cont_arquivo_comp = Bits(0)
+
     for i in range(len(arquivo)):
-        if arquivo[i] in chaves:
-            indice = chaves.index(arquivo[i])
-            cont_arquivo_comp += dici[chaves[indice]]
+        # monta o arquivo compactado
+        # concatenando os bits de cada letra 
+        cont_arquivo_comp += dici[arquivo[i]]
 
     return cont_arquivo_comp
 
@@ -220,13 +231,18 @@ def salva_desc(nome: str, arq: str, tipo_formato: str):
     dados_arqs = cp
     dados_arqs.read("save.ini", encoding= "UTF-8")
 
+    # vê se o arquivo já consta no ini
     if existente(nome):
+        # se contar retorna vazio
         return
     else:
+        # o nome do arquivo é reescrio em caixa baixa
         nome = nome.lower()
 
+        # salvamento no arquivo ini
         dados_arqs[nome] = {"nome": arq, "tipo_formato": tipo_formato}
 
+        # escreve os dados no ini
         with open("save.ini", "a", encoding="UTF-8") as save_comps:
             return dados_arqs.write(save_comps)
 
@@ -243,12 +259,18 @@ def compac(arq: str, arquivo_loc: str) -> Bits:
         arquivo (huff):  arquivo compactado
     """
 
+    # pega as frequencias
     freq = frequencias(arq)
+    # ordena-as 
     ord = ordem_freqs(freq)
+    # concatena elas
     conc = concat(ord)
+    # atribui codificação a cada letra
     codif = codifica(conc)
+    # retorna o arquivo final compatado
     cripto = atribui(codif, arq)
 
+    # escreve o conteúdo compactado no arquivo final
     with open(arquivo_loc, "wb") as comp:
         return cripto.tofile(comp)
 
@@ -264,24 +286,24 @@ def desc(nome: str, form: str, i: int = 1):
     """
     cp.read('save.ini', encoding="UTF-8")
 
-    # essa parte é um módulo a parte para o programa rodar no linux
-    # pois no windows a função open cria um arquivo diretamente no diretório
-    # no qual eu coloquei o nome do arquivo
+    # cria o arquivo compactado no mesmo diretório do txt
     nome.replace(".huff", form)
     lista_nome2 = nome.split("/")
-    nome_arquivo = lista_nome2[-1]
-    nome_arquivo += f"({i}){form}"
+    nome_arquivo = lista_nome2[-1].replace(".txt",f"({i}){form}")
 
+    # tenta criar o arquivo
     try:
         with open(nome_arquivo, "x", encoding = "UTF-8") as des:
             return des.write(cp[nome].get("nome"))
 
+    # se der erro ele entra na recursividade
+    # passando o formato e i incrementado em um 
     except FileExistsError:
         return desc(nome, form, i+1)
 
 
 def semi_compac(nome_arquivo: str):
-    """faz parte dos proocessos para a compatação do arquivo
+    """faz parte dos processos para a compatação do arquivo
 
     Args:
         nome_arquivo (str): nome do arquivo a ser aberto
@@ -290,38 +312,21 @@ def semi_compac(nome_arquivo: str):
         semi_hd: responsável por guardar os dados do arquivo original
     """
 
-    tipo_formato = ".txt"
-
+    # abre o arquivo txt
     with open(nome_arquivo, "r") as conteudo_arq:
         conteudo_arq = conteudo_arq.read()
 
-    nome_arquivo = nome_arquivo.replace(tipo_formato, ".huff")
+    # troca a extensão txt por huff
+    nome_arquivo = nome_arquivo.replace(".txt", ".huff")
 
+    # retorna o arquivo compactado
     compac(conteudo_arq, nome_arquivo)
 
     # armazena os dados do arquivo original de acordo com a função salva_desc
-    semi_hd = salva_desc(nome_arquivo.replace(".huff", ".txt"), conteudo_arq, tipo_formato)
+    semi_hd = salva_desc(nome_arquivo.replace(".huff", ".txt"), conteudo_arq, ".txt")
 
     return semi_hd
 
-
-def erro_import(arq_nome: str, action: str):
-    """verifica se o arquivo importado
-    para a compactação do arquivo tem uma extensão aceita
-
-    Args:
-        arq_nome (str): nome do arquivo
-        action (str): ação a ser tomada pelo programa
-
-    Raises:
-        ImportError: erro se o arquivo não for aceito pelo programa
-    """
-    if action == "c":
-        if ".txt" not in arq_nome:
-            raise ImportError
-    elif action == "x":
-        if ".huff" not in arq_nome:
-            raise ImportError
 
 def existente(nome: str) -> bool:
     """verifica a existência de um determinado arquivo no diretório
