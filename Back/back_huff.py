@@ -9,12 +9,13 @@ import configparser
 # deep copy sera usado na função concat
 # para que eu altere um dicionário sem que as alterações sejam passadas adiante
 from copy import deepcopy
+
+# usado em ara odenar os dicionários de forma mais eficiente 
 from operator import itemgetter
 
 # Bits será usado nas funções "codifica" e "atribui"
 # pois nós precisamos manipular bits ao invés de strings
 from bitstring import Bits
-from matplotlib.font_manager import json_load
 
 cp = configparser.ConfigParser()
 
