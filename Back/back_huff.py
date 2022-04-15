@@ -329,6 +329,4 @@ def erro_import(arq_nome: str, action: str):
         if ".huff" not in arq_nome:
             raise ImportError
 
-
-def parse_compac():
     

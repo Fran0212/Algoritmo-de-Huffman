@@ -15,19 +15,19 @@ Tela_principal = Tk()
 Tela_principal.title("Algoritmo de Huffman")
 
 # Tamanho da tela que se adequa a imagem.
-Tela_principal.geometry('600x338')
+Tela_principal.geometry('400x350')
 
 # Variavel que armazenará a imagem projetada na tela inicial.
-img_principal = PhotoImage(file='imagem/ALGORITMO DE HUFFMAN(2).png')
+img_principal = PhotoImage(file='imagem/arvoreOfc-removebg-preview.png')
 
 # Colocação da inagem da tela
 label_image = Label(Tela_principal, image=img_principal).pack()
 
 # Importação da imagem
-img_compactar = PhotoImage(file='imagem/teste.gif')
+img_compactar = PhotoImage(file='imagem/imagemDescompactar-removebg-preview.png')
 
 # bot�es responsaveis pela execu��o do codigo.
-botão_compactar = Button(Tela_principal, text="reconstruir", command=reconstruir)
+botão_compactar = Button(Tela_principal, text="compactar", image= img_compactar, command=reconstruir )
 botão_descompactar = Button(Tela_principal, text="descompactar", command=compactar)
 botão_reconstruir = Button(Tela_principal, text="reconstruir", command=descompactar)
 
