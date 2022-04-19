@@ -33,29 +33,8 @@ def frequencias(conteudo: str) -> dict:
     return dict(Counter(conteudo))
 
 
-def ordem_freqs(dicio: dict) -> dict:
-    """Ordena o dicionário de acordo com a frequencia de cada chave no texto
-
-    Args:
-        dicio (dict): um dicionário contendo cada letra
-        e sua respectiva frequencia no texto
-
-    Returns:
-        dicio_ordem (dict): um dicionário ordenado de acordo com a key (sorted)
-        , de argumento x, que representa a tupla de item do dicionário
-        , e retona o indice 1 de cada tupla (ou seja x[1])
-    """
-
-    # arr_ordem representa a lista de tuplas
-    arr_ordem = sorted(dicio.items(), key= itemgetter(1))
-    # dicio_ordem é um dict vazio que vai receber os itens armazenados na tupla
-    dicio_ordem = dict(arr_ordem)
-
-    # nesse for foi usado o mesmo raciocinio de iteração de matrizes
-    # , pois, em tese, essas são estruturas de dados
-    # com estruturas de dado dentro, logo uma lista de tuplas é
-    # , de certa forma, uma matriz
-    return dicio_ordem
+def ordem_freqs(dici: dict) -> dict:
+    return dici
 
 
 def concat(dici: dict) -> dict:
@@ -86,7 +65,7 @@ def concat(dici: dict) -> dict:
         dici[new_key] = dici_copy[chaves[0]] + dici_copy[chaves[1]]
         # repete o mesmo processo de cima
         # mas dessa vez, o intuito é adicionar a nova para remover as antigas
-        dici_copy[new_key] = dici_copy[chaves[0]] + dici_copy[chaves[1]]
+        dici_copy[new_key] = dici[new_key]
 
         # ordenação de dici_copy
         # para que ele esteja sempre na ordem crescente
@@ -97,7 +76,7 @@ def concat(dici: dict) -> dict:
         # dessa forma, a gente evita que as chaves não concatenadas
         # fiquem sempre na frente das somadas
         for j in range(2):
-            dici_copy.pop(chaves[j])
+            del dici_copy[chaves[j]]
 
         # atualização da lista de chaves
         # é necessária repetição de código, para que a lista seja atualizada
@@ -195,7 +174,7 @@ def obtem_keys_alone(dici: dict) -> dict:
     return keys_alone
 
 
-def atribui(dici: dict, arquivo: str) -> Bits:
+def atribui(dici: dict, arquivo: str, arquivo_loc) -> Bits:
     """é uma função responsável por atribuir à uma variável com um bit vazio
     os códigos das letras nas suas respectivas
     posições em relação ao texto original
@@ -208,15 +187,12 @@ def atribui(dici: dict, arquivo: str) -> Bits:
         cont_arquivo_comp (bits): a bitstring do arquivo original
     """
 
-    # inicialização de uma variável com o tipo bits
-    cont_arquivo_comp = Bits(0)
 
-    for i in range(len(arquivo)):
-        # monta o arquivo compactado
-        # concatenando os bits de cada letra 
-        cont_arquivo_comp += dici[arquivo[i]]
-
-    return cont_arquivo_comp
+    with open(arquivo_loc, "wb") as comp:
+        for i in arquivo:
+            # monta o arquivo compactado
+            # concatenando os bits de cada letra 
+            dici[i].tofile(comp)
 
 
 def salva_desc(nome: str, arq: str, tipo_formato: str):
@@ -235,10 +211,10 @@ def salva_desc(nome: str, arq: str, tipo_formato: str):
     # vê se o arquivo já consta no ini
     if existente(nome):
         # se contar retorna vazio
-        return
+        return 0
     else:
         # o nome do arquivo é reescrio em caixa baixa
-        nome = nome.lower()
+        # nome = nome.lower()
 
         # salvamento no arquivo ini
         dados_arqs[nome] = {"nome": arq, "tipo_formato": tipo_formato}
@@ -262,18 +238,19 @@ def compac(arq: str, arquivo_loc: str) -> Bits:
 
     # pega as frequencias
     freq = frequencias(arq)
+    print(1)
     # ordena-as 
     ord = ordem_freqs(freq)
+    print(2)
     # concatena elas
     conc = concat(ord)
+    print(3)
     # atribui codificação a cada letra
     codif = codifica(conc)
+    print(4)
     # retorna o arquivo final compatado
-    cripto = atribui(codif, arq)
-
-    # escreve o conteúdo compactado no arquivo final
-    with open(arquivo_loc, "wb") as comp:
-        return cripto.tofile(comp)
+    atribui(codif, arq, arquivo_loc)
+    print(5)
 
 
 def desc(nome: str, form: str, i: int = 1):
@@ -290,7 +267,11 @@ def desc(nome: str, form: str, i: int = 1):
     # cria o arquivo compactado no mesmo diretório do txt
     nome.replace(".huff", form)
     lista_nome2 = nome.split("/")
-    nome_arquivo = lista_nome2[-1].replace(".txt",f"({i}){form}")
+
+    if existente(nome):
+        nome_arquivo = lista_nome2[-1].replace(".txt",f"({i}){form}")
+    else:
+        nome_arquivo = lista_nome2[-1]
 
     # tenta criar o arquivo
     try:
@@ -340,4 +321,5 @@ def existente(nome: str) -> bool:
     Returns:
         bool: verdadeiro ou falso
     """
-    return nome in cp.sections()
+
+    return nome in cp.sections() 
