@@ -10,57 +10,28 @@ from configparser import NoSectionError
 
 
 def compactar():
+   arquivo_loc = dlg.askopenfilename(title="select a file", filetypes=(("text files", "*.txt"), ("All files", "*")))
+
    try:
-      arquivo_loc = dlg.askopenfilename(title="select a file", filetypes=(("txt files", "*.txt"), ("All files", "*")))
-      erro_import(arquivo_loc, "c")
-   except ImportError:
-      messagebox.showerror(title="Error", message="Extensão inválida, selecione um arquivo .txt")
+      semi_compac(arquivo_loc)
+   except:
+      messagebox.showerror(title="Error", message="Ops, algo deu errado!")
    else:
-      try:
-         semi_compac(arquivo_loc)
-      except:
-         messagebox.showerror(title="Error", message="Ops, algo deu errado!")
-      else:
-         messagebox.showinfo(title="Sucesso", message="Arquivo compactado com sucesso!")
+      messagebox.showinfo(title="Sucesso", message="Arquivo compactado com sucesso!")
 
 
 def descompactar():
+   arquivo_loc = dlg.askopenfilename(title="select a file", filetypes=(("huff files", "*.huff"), ("All files", "*")))
+
+   cp.read('save.ini', encoding="utf-8")
+
    try:
-      arquivo_loc = dlg.askopenfilename(title="select a file", filetypes=(("huff files", "*.huff"), ("All files", "*")))
-      erro_import(arquivo_loc, "x")
-   except ImportError:
-      messagebox.showerror(title="Error", message="Extensão inválida, selecione um arquivo .huff")
+      nome_section = arquivo_loc.lower()
+      formate = cp[nome_section].get("tipo_formato")
+      desc(nome_section, formate)
+
+   except NoSectionError:
+      messagebox.showerror(title="Error", message="Ops, algo deu errado!")
+
    else:
-      cp.read('save.ini', encoding="utf-8")
-
-      try:
-         nome_section = arquivo_loc.lower()
-         formate = cp[nome_section].get("tipo_formato")
-         desc(nome_section, formate)
-
-      except NoSectionError:
-         messagebox.showerror(title="Error", message="Ops, algo deu errado!")
-
-      else:
-         messagebox.showinfo(title="Sucesso", message="Arquivo compactado com sucesso!")
-
-
-def reconstruir():
-   try:
-      arquivo_loc = dlg.askopenfilename(title="select a file", filetypes=(("huff files", "*.huff"), ("All files", "*")))
-      erro_import(arquivo_loc, "r")
-   except ImportError:
-      messagebox.showerror(title="Error", message="Extensão inválida, selecione um arquivo .huff")
-   else:
-      cp.read('save.ini', encoding="utf-8")
-
-      try:
-         nome_section = arquivo_loc.lower()
-         formate = cp[nome_section].get("tipo_formato")
-         desc(nome_section, formate)
-
-      except NoSectionError:
-         messagebox.showerror(title="Error", message="Ops, algo deu errado!")
-      else:
-         messagebox.showinfo(title="Sucesso", message="Arquivo reconstruido com sucesso!")
-
+      messagebox.showinfo(title="Sucesso", message="Arquivo compactado com sucesso!")
