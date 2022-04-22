@@ -38,8 +38,8 @@ img_compactar = PhotoImage(file='imagem/img2.png')
 img_descompactar = PhotoImage(file='imagem/pimenta.png')
 
 # botoes responsaveis pela execucao do codigo.
-botao_compactar = Button(Tela_principal, text="compactar", bg= "white", command=compactar).place(x=220, y=50)
-botao_descompactar = Button(Tela_principal, text="descompactar", command=descompactar).place(x=220, y=120)
+botao_compactar = Button(Tela_principal, text="compactar",bg="#EE6A50", command=compactar).place(x=230, y=80)
+botao_descompactar = Button(Tela_principal, text="descompactar",bg="#00BFFF", command=descompactar).place(x=220, y=120)
 
 # Pedir o arquivo 
 
