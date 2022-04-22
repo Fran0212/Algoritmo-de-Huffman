@@ -1,11 +1,12 @@
 
 # Biblioteca necess�ria para a construção da interface.
+import tkinter.colorchooser
 from tkinter import *
 
-# fa�o a importa��o do codigo para executar os comandos na interface.
+# fa�o a importação do codigo para executar os comandos na interface.
 from Back.back_huff import *
 
-# importa as fun��es necess�rias para o front do projeto
+# importa as fun��es necessárias para o front do projeto
 from Front.front_huff import *
 
 # Inicialização da tela principal.
@@ -15,13 +16,16 @@ Tela_principal = Tk()
 Tela_principal.title("Algoritmo de Huffman")
 
 # Tamanho da tela que se adequa a imagem.
-Tela_principal.geometry('400x350')
+Tela_principal.geometry('300x254+200+200')
+
+# Para evitar que minha janela se redimensione
+Tela_principal.resizable(False, False)
 
 # Variavel que armazenará a imagem projetada na tela inicial.
 img_principal = PhotoImage(file='imagem/arvoreOfc-removebg-preview.png')
 
 # Colocação da inagem da tela
-label_image = Label(Tela_principal, image=img_principal).pack()
+label_image = Label(Tela_principal, image=img_principal).place(x=-1, y=-1)
 
 # Importação da imagem
 img_compactar = PhotoImage(file='imagem/imagemDescompactar-removebg-preview.png')
