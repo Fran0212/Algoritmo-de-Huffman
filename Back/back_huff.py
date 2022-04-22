@@ -1,79 +1,40 @@
-import configparser
+# Counter será usado na função "frequencia"
+from collections import Counter
+
 # config parser é uma biblioteca responsável por fazer arquivos de configuração
 # será usada para criar uma espécie de banco de
 # dados com os dados dos arquivos de entrada
+import configparser
 
-from copy import deepcopy
 # deep copy sera usado na função concat
 # para que eu altere um dicionário sem que as alterações sejam passadas adiante
+from copy import deepcopy
 
-from bitstring import Bits
+# usado em ara odenar os dicionários de forma mais eficiente 
+from operator import itemgetter
+
 # Bits será usado nas funções "codifica" e "atribui"
 # pois nós precisamos manipular bits ao invés de strings
+from bitstring import Bits
 
 cp = configparser.ConfigParser()
 
 
-def frequencias(entrada: str) -> dict:
-    """Obtem as frequencias de cada letra
+def frequencias(conteudo: str) -> dict:
+    """Obtem as frequencias do texto do arquivo
 
     Args:
-        entrada (str): um texto inteiro
+        conteudo (str): conteúdo do arquivo
 
     Returns:
-        letras_freqs (dict): um dicionário que contem cada item
-        e suas frequencias
-    """
-    entrada = entrada
-    letras_freqs = {}
-    # key = list(dici.keys())
-
-    # esse for vai iterar a string de entrada
-    for x in range(len(entrada)):
-        # freqs vai receber a incidencia de cada letra no texto
-        freqs = entrada.count(entrada[x])
-
-        # o dicionário recebe a chave correspondente a cada letra da entrada
-        # e cada key recebe um valor referente à frequencia de cada letra
-        letras_freqs[entrada[x]] = freqs
-
-    # letras_freqs[key[0]] = dici[key[0]]
-
-    return letras_freqs
-
-
-def ordem_freqs(dicio: dict) -> dict:
-    """Ordena o dicionário de acordo com a frequencia de cada chave no texto
-
-    Args:
-        dicio (dict): um dicionário contendo cada letra
-        e sua respectiva frequencia no texto
-
-    Returns:
-        dicio_ordem (dict): um dicionário ordenado de acordo com a key (sorted)
-        , de argumento x, que representa a tupla de item do dicionário
-        , e retona o indice 1 de cada tupla (ou seja x[1])
+        dict: dicionário com as frequências de cada letra
     """
 
-    # arr_ordem representa a lista de tuplas
-    arr_ordem = sorted(dicio.items(), key=lambda x: x[1])
-    # dicio_ordem é um dict vazio que vai receber os itens armazenados na tupla
-    dicio_ordem = {}
+    return dict(Counter(conteudo))
 
-    # esse laço vai iterar sobre os indicies de cada tupla.
-    for i in range(len(arr_ordem)):
-        # ja esse vai iterar sobre a tupla referente ao indice i(arr_ordem[i])
-        for j in arr_ordem[i]:
-            # aqui dicio_ordem recebe uma chave referente ao indice 0
-            # e essa por sua vez recebe um valor referente ao indice 1
-            dicio_ordem[arr_ordem[i][0]] = arr_ordem[i][1]
 
-    # nesse for foi usado o mesmo raciocinio de iteração de matrizes
-    # , pois, em tese, essas são estruturas de dados
-    # com estruturas de dado dentro, logo uma lista de tuplas é
-    # , de certa forma, uma matriz
-
-    return dicio_ordem
+def ordem_freqs(dici: dict) -> dict:
+    return dici
 
 
 def concat(dici: dict) -> dict:
@@ -104,7 +65,7 @@ def concat(dici: dict) -> dict:
         dici[new_key] = dici_copy[chaves[0]] + dici_copy[chaves[1]]
         # repete o mesmo processo de cima
         # mas dessa vez, o intuito é adicionar a nova para remover as antigas
-        dici_copy[new_key] = dici_copy[chaves[0]] + dici_copy[chaves[1]]
+        dici_copy[new_key] = dici[new_key]
 
         # ordenação de dici_copy
         # para que ele esteja sempre na ordem crescente
@@ -115,7 +76,7 @@ def concat(dici: dict) -> dict:
         # dessa forma, a gente evita que as chaves não concatenadas
         # fiquem sempre na frente das somadas
         for j in range(2):
-            dici_copy.pop(chaves[j])
+            del dici_copy[chaves[j]]
 
         # atualização da lista de chaves
         # é necessária repetição de código, para que a lista seja atualizada
@@ -138,21 +99,28 @@ def codifica(dici: dict, dici_cods: dict = {}) -> dict:
     keys = list(dici.keys())
 
     # chama uma função responsável por obter as chaves que são apenas letras
-    keys_alone = obtem_keys_alone(keys)
+    keys_alone = obtem_keys_alone(dici)
 
     # atribui Bits de 0,1 do menor ao maior de acordo com os nós e folhas
     dici = atrubui_bits(dici, keys)
 
-    # verifica se a letra está dentro do nó
+    # atribuição de uma lista com as chaves do dicionário
+    list_keys_alone = list(keys_alone.keys())
+
+
     # e atribui à chave o código pertencente aos nós até chegar na folha
-    for k in range(len(keys_alone)):
+    for k in range(len(list_keys_alone)):
+        # reseta o codigo
         cod = Bits(0)
         for l in range(len(keys)):
-            if keys_alone[k] in keys[l]:
+            # verifica se a letra está dentro do nó
+            if list_keys_alone[k] in keys[l]:
+                # concatena um bit ao código
                 cod += dici[keys[l]]
-        dici_cods[keys_alone[k]] = cod
+        # cada letra recebe seu código
+        keys_alone[list_keys_alone[k]] = cod
 
-    return dici_cods
+    return keys_alone
 
 
 def atrubui_bits(dici: dict, keys: list) -> dict:
@@ -166,6 +134,7 @@ def atrubui_bits(dici: dict, keys: list) -> dict:
         dict: dicionário com 0 e 1, ou seja, a árvore montada
     """
 
+
     for i in range(len(keys)):
         if i == len(keys) - 1:
             dici[keys[i]] = Bits(0)
@@ -177,25 +146,35 @@ def atrubui_bits(dici: dict, keys: list) -> dict:
     return dici
 
 
-def obtem_keys_alone(keys: list, keys_alone: list=[]) -> list:
-    """função responsável por retornas as chaves que são apenas letras
+def obtem_keys_alone(dici: dict) -> dict:
+    """Obtem as chaves que contém apenas uma letra
 
     Args:
-        keys (list): listas com todas as chaves do meu dicionário
-        keys_alone (list, opicional): recebe essas chaves só com uma letra.
-        Padrão to [].
+        dici (dict): dicionário contendo as frequencias de todos os nós e folhas da árvore
 
     Returns:
-        keys_alone (list): lista com as chaves unicas (keys_alone)
+        dict: dicionário que contém os nós com letras únicas
     """
-    for g in range(len(keys)):
-        if len(keys[g]) == 1:
-            keys_alone.append(keys[g])
+
+    # l é um lambda function que retona:
+    # # o item se o seu tamanho for de apenas uma letra
+    # # uma tupla contendo (None,None)
+    l = lambda x: x if len(x[0]) == 1 else (None,None)
+
+    # keys alone recebe o cast para dicionário do mapemento
+    # dos itens do dicionário inserido na função
+    # # eu fiz esse cast pois o hashmap só aceita uma chave por item
+    # # logo, isso faz com que tudo que não tenha uma uníca letra
+    # # seja facilmente retirado com a função del   
+    keys_alone = dict(map(l, dici.items()))
+
+    # remoção dos termos, de acordo com o pressuposto
+    del keys_alone[None]
 
     return keys_alone
 
 
-def atribui(dici: dict, arquivo: str) -> Bits:
+def atribui(dici: dict, arquivo: str, arquivo_loc) -> Bits:
     """é uma função responsável por atribuir à uma variável com um bit vazio
     os códigos das letras nas suas respectivas
     posições em relação ao texto original
@@ -207,14 +186,13 @@ def atribui(dici: dict, arquivo: str) -> Bits:
     Returns:
         cont_arquivo_comp (bits): a bitstring do arquivo original
     """
-    chaves = list(dici.keys())
-    cont_arquivo_comp = Bits(0)
-    for i in range(len(arquivo)):
-        if arquivo[i] in chaves:
-            indice = chaves.index(arquivo[i])
-            cont_arquivo_comp += dici[chaves[indice]]
 
-    return cont_arquivo_comp
+
+    with open(arquivo_loc, "wb") as comp:
+        for i in arquivo:
+            # monta o arquivo compactado
+            # concatenando os bits de cada letra 
+            dici[i].tofile(comp)
 
 
 def salva_desc(nome: str, arq: str, tipo_formato: str):
@@ -228,14 +206,22 @@ def salva_desc(nome: str, arq: str, tipo_formato: str):
     """
 
     dados_arqs = cp
-    dados_arqs.read("save.ini", encoding="utf-8")
+    dados_arqs.read("save.ini", encoding= "UTF-8")
 
-    nome_banco_dados = nome.lower()
+    # vê se o arquivo já consta no ini
+    if existente(nome):
+        # se contar retorna vazio
+        return 0
+    else:
+        # o nome do arquivo é reescrio em caixa baixa
+        # nome = nome.lower()
 
-    dados_arqs[nome_banco_dados] = {"nome": arq.lower(), "tipo_formato": tipo_formato}
+        # salvamento no arquivo ini
+        dados_arqs[nome] = {"nome": arq, "tipo_formato": tipo_formato}
 
-    with open("save.ini", "x", encoding="utf-8") as save_comps:
-        return dados_arqs.write(save_comps)
+        # escreve os dados no ini
+        with open("save.ini", "a", encoding="UTF-8") as save_comps:
+            return dados_arqs.write(save_comps)
 
 
 def compac(arq: str, arquivo_loc: str) -> Bits:
@@ -247,17 +233,24 @@ def compac(arq: str, arquivo_loc: str) -> Bits:
         arquivo_loc (str): reponsável por indicar o local do arquivo
 
     Returns:
-        arquivo (mbdk):  arquivo compactado
+        arquivo (huff):  arquivo compactado
     """
 
+    # pega as frequencias
     freq = frequencias(arq)
+    print(1)
+    # ordena-as 
     ord = ordem_freqs(freq)
+    print(2)
+    # concatena elas
     conc = concat(ord)
+    print(3)
+    # atribui codificação a cada letra
     codif = codifica(conc)
-    cripto = atribui(codif, arq)
-
-    with open(arquivo_loc, "wb") as comp:
-        return cripto.tofile(comp)
+    print(4)
+    # retorna o arquivo final compatado
+    atribui(codif, arq, arquivo_loc)
+    print(5)
 
 
 def desc(nome: str, form: str, i: int = 1):
@@ -269,25 +262,30 @@ def desc(nome: str, form: str, i: int = 1):
         dici (str): armazenamento das chaves
         i (int, optional): contador de arquivos existentes. padrão para 0.
     """
-    cp.read('save.ini', encoding="utf-8")
+    cp.read('save.ini', encoding="UTF-8")
 
-    # essa parte é um módulo a parte para o programa rodar no linux
-    # pois no windows a função open cria um arquivo diretamente no diretório
-    # no qual eu coloquei o nome do arquivo
-    nome2 = nome.replace(".huff", "({}){}".format(i, form))
-    lista_nome2 = nome2.split("/")
-    nome_arquivo = lista_nome2[-1]
+    # cria o arquivo compactado no mesmo diretório do txt
+    nome.replace(".huff", form)
+    lista_nome2 = nome.split("/")
 
+    if existente(nome):
+        nome_arquivo = lista_nome2[-1].replace(".txt",f"({i}){form}")
+    else:
+        nome_arquivo = lista_nome2[-1]
+
+    # tenta criar o arquivo
     try:
         with open(nome_arquivo, "x", encoding = "UTF-8") as des:
             return des.write(cp[nome].get("nome"))
 
+    # se der erro ele entra na recursividade
+    # passando o formato e i incrementado em um 
     except FileExistsError:
-        return desc(nome2, form, i+1)
+        return desc(nome, form, i+1)
 
 
 def semi_compac(nome_arquivo: str):
-    """faz parte dos proocessos para a compatação do arquivo
+    """faz parte dos processos para a compatação do arquivo
 
     Args:
         nome_arquivo (str): nome do arquivo a ser aberto
@@ -296,35 +294,32 @@ def semi_compac(nome_arquivo: str):
         semi_hd: responsável por guardar os dados do arquivo original
     """
 
-    tipo_formato = ".txt"
-
+    # abre o arquivo txt
     with open(nome_arquivo, "r") as conteudo_arq:
         conteudo_arq = conteudo_arq.read()
 
-    nome_arquivo = nome_arquivo.replace(tipo_formato, ".huff")
+    # troca a extensão txt por huff
+    nome_arquivo = nome_arquivo.replace(".txt", ".huff")
 
+    # retorna o arquivo compactado
     compac(conteudo_arq, nome_arquivo)
 
     # armazena os dados do arquivo original de acordo com a função salva_desc
-    semi_hd = salva_desc(nome_arquivo, conteudo_arq, tipo_formato)
+    semi_hd = salva_desc(nome_arquivo.replace(".huff", ".txt"), conteudo_arq, ".txt")
 
     return semi_hd
 
 
-def erro_import(arq_nome: str, action: str):
-    """verifica se o arquivo importado
-    para a compactação do arquivo tem uma extensão aceita
+def existente(nome: str) -> bool:
+    """verifica a existência de um determinado arquivo no diretório
+        para isso, ele ve se o nome do meu arquivo -- diretório -- já se encontra
+        no arquivo .ini que a codificação está salva
 
     Args:
-        arq_nome (str): nome do arquivo
-        action (str): ação a ser tomada pelo programa
+        nome (str): diretório do arquivo
 
-    Raises:
-        ImportError: erro se o arquivo não for aceito pelo programa
+    Returns:
+        bool: verdadeiro ou falso
     """
-    if action == "c":
-        if ".txt" not in arq_nome:
-            raise ImportError
-    elif action == "x":
-        if ".huff" not in arq_nome:
-            raise ImportError
+
+    return nome in cp.sections() 
